@@ -1,17 +1,27 @@
-terraform {
-  required_providers {
-    github = {
-      source  = "integrations/github"
-      version = "~> 5.0"
-    }
-  }
-}
-provider "github" {
-  token = "ghp_yu3Yx2LikDGz73yjeSxF5BYj6NRIR2mrE5y"
+resource "github_repository" "first_repo_example" {
+  name        = var.name
+  description = var.description
+  visibility  = var.visibility
 }
 
-resource "github_repository" "example" {
-  name        = "my-first-repo-using-terraform"
-  description = "My awesome codebase"
-  visibility  = "public"
+resource "github_branch_default" "default"{
+  repository = github_repository.first_repo_example.name
+  branch     = var.default_branch
+}
+
+resource "null_resource" "setup_repo" {
+  triggers = {
+    repo_name = github_repository.first_repo_example.name
+  }
+
+  provisioner "local-exec" {
+    command = "./setup_repo.sh ${github_repository.first_repo_example.html_url}"
+  }
+}
+
+
+resource "github_branch" "development" {
+  repository = github_repository.first_repo_example.name
+  branch     = var.branch
+  depends_on = [null_resource.setup_repo]
 }
