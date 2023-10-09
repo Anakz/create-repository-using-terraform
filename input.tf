@@ -13,7 +13,7 @@ variable "visibility" {
 
 # github_branch resource
 variable "branch" {
-    default = "development"
+    default = ["k8s", "helm", "helmfile", "master"]
 }
 variable "default_branch" {
     default = "master"
